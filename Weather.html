@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .weather-container {
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+      padding: 28px 32px 36px 32px;
+      text-align: center;
+      width: 340px;
+    }
+    .weather-container h2 {
+      margin: 6px 0 12px 0;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #2193b0;
+    }
+    input[type="text"] {
+      outline: none;
+      border: 1px solid #2193b0;
+      border-radius: 8px;
+      padding: 10px 13px;
+      font-size: 1rem;
+      width: 60%;
+      margin-right: 4px;
+      transition: border 0.3s;
+    }
+    input[type="text"]:focus {
+      border-color: #6dd5ed;
+    }
+    button {
+      background: #2193b0;
+      color: #fff;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #117093;
+    }
+    .weather-details {
+      margin-top: 24px;
+    }
+    .weather-details img {
+      width: 80px;
+      margin-bottom: 12px;
+    }
+    .weather-details .temperature {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #2193b0;
+      margin-bottom: 2px;
+    }
+    .weather-details .desc {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: #555;
+      text-transform: capitalize;
+    }
+    .weather-details .info {
+      font-size: 1rem;
+      color: #444;
+      margin-top: 4px;
+    }
+    .error {
+      color: #d7263d;
+      margin-top: 16px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-container">
+    <h2>Weather App</h2>
+    <form id="weather-form">
+      <input type="text" id="location-input" placeholder="Enter location" required autocomplete="off">
+      <button type="submit">Get Weather</button>
+    </form>
+    <div class="weather-details" id="weather-details" style="display:none;"></div>
+    <div class="error" id="error-msg"></div>
+  </div>
+  <script>
+    const apiKey = "cf3c38f3b9984bc1a3e151309252208"; // your API key
+    const form = document.getElementById('weather-form');
+    const weatherDetails = document.getElementById('weather-details');
+    const errorMsg = document.getElementById('error-msg');
+    const locationInput = document.getElementById('location-input');
+
+    async function getWeather(location) {
+      weatherDetails.style.display = "none";
+      errorMsg.textContent = "";
+      try {
+        const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}&aqi=yes`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Location not found");
+        const data = await response.json();
+
+        weatherDetails.innerHTML = `
+          <img src="https:${data.current.condition.icon}" alt="${data.current.condition.text}">
+          <div class="temperature">${data.current.temp_c}°C</div>
+          <div class="desc">${data.current.condition.text}</div>
+          <div class="info">Humidity: ${data.current.humidity}%</div>
+          <div class="info">Wind: ${data.current.wind_kph} kph</div>
+          <div class="info">Air Quality: ${data.current.air_quality.pm2_5 ? 'PM2.5: ' + data.current.air_quality.pm2_5 : 'N/A'}</div>
+          <div class="info" style="margin-top:8px;font-size:0.95rem;">Location: ${data.location.name}, ${data.location.country}</div>
+        `;
+        weatherDetails.style.display = "block";
+      } catch (err) {
+        errorMsg.textContent = "Could not get weather for your location. Please try another city.";
+      }
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const location = locationInput.value.trim();
+      if (location) {
+        getWeather(location);
+      }
+    });
+
+    // Get weather for default location on load
+    getWeather("London");
+  </script>
+</body>
+</html>
