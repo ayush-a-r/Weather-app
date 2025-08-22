@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weather App</title>
   <style>
     body {
@@ -20,13 +21,20 @@
       box-shadow: 0 4px 18px rgba(0,0,0,0.1);
       padding: 28px 32px 36px 32px;
       text-align: center;
-      width: 340px;
+      /* Responsive adjustments */
+      width: 90%;
+      max-width: 340px;
+      box-sizing: border-box; /* Ensures padding doesn't add to the width */
     }
     .weather-container h2 {
       margin: 6px 0 12px 0;
       font-weight: 700;
       letter-spacing: 1px;
       color: #2193b0;
+    }
+    #weather-form {
+      display: flex;
+      justify-content: space-between;
     }
     input[type="text"] {
       outline: none;
@@ -35,8 +43,8 @@
       padding: 10px 13px;
       font-size: 1rem;
       width: 60%;
-      margin-right: 4px;
       transition: border 0.3s;
+      box-sizing: border-box; /* Ensures padding doesn't add to the width */
     }
     input[type="text"]:focus {
       border-color: #6dd5ed;
@@ -83,6 +91,30 @@
       margin-top: 16px;
       font-size: 1rem;
     }
+
+    /* Media Query for mobile devices */
+    @media (max-width: 400px) {
+      .weather-container {
+        padding: 20px;
+      }
+      #weather-form {
+        flex-direction: column; /* Stack input and button vertically */
+      }
+      input[type="text"] {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px; /* Add space between input and button */
+      }
+      button {
+        width: 100%;
+      }
+      .weather-details .temperature {
+        font-size: 2.2rem;
+      }
+      .weather-details .desc {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -106,7 +138,7 @@
       weatherDetails.style.display = "none";
       errorMsg.textContent = "";
       try {
-        const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}&aqi=yes`;
+        const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}&aqi=yes`;
         const response = await fetch(url);
         if (!response.ok) throw new Error("Location not found");
         const data = await response.json();
@@ -117,12 +149,12 @@
           <div class="desc">${data.current.condition.text}</div>
           <div class="info">Humidity: ${data.current.humidity}%</div>
           <div class="info">Wind: ${data.current.wind_kph} kph</div>
-          <div class="info">Air Quality: ${data.current.air_quality.pm2_5 ? 'PM2.5: ' + data.current.air_quality.pm2_5 : 'N/A'}</div>
+          <div class="info">Air Quality: ${data.current.air_quality.pm2_5 ? 'PM2.5: ' + data.current.air_quality.pm2_5.toFixed(2) : 'N/A'}</div>
           <div class="info" style="margin-top:8px;font-size:0.95rem;">Location: ${data.location.name}, ${data.location.country}</div>
         `;
         weatherDetails.style.display = "block";
       } catch (err) {
-        errorMsg.textContent = "Could not get weather for your location. Please try another city.";
+        errorMsg.textContent = "Could not get weather. Please try another city.";
       }
     }
 
